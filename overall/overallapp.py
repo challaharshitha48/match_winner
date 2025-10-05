@@ -15,7 +15,7 @@ import requests
 import io
 import matplotlib.pyplot as plt
 
-MODEL_URL = "https://raw.githubusercontent.com/challaharshitha48/match_winner/overall/linear_regression_model.pkl"
+MODEL_URL = "https://raw.githubusercontent.com/challaharshitha48/match_winner/main/overall/linear_regression_model.pkl"
 
 @st.cache_resource
 def load_model():
