@@ -15,21 +15,24 @@ import requests
 import io
 import matplotlib.pyplot as plt
 
-# GitHub raw link to your pickle model (replace with your repo path)
 MODEL_URL = "https://raw.githubusercontent.com/challaharshitha48/match_winner/overall/linear_regression_model.pkl"
 
 @st.cache_resource
 def load_model():
     response = requests.get(MODEL_URL)
-    model = pickle.load(io.BytesIO(response.content))
+    if response.status_code != 200:
+        raise Exception(f"HTTP error {response.status_code}")
+    try:
+        model = pickle.load(io.BytesIO(response.content))
+    except Exception as e:
+        raise Exception(f"Failed to load pickle: {e}")
     return model
 
 st.set_page_config(page_title="Regression Predictor", layout="wide")
 
-st.title("📊 Linear Regression Predictor")
+st.title("📊 Overall Points Predictor")
 st.write("This app loads a trained regression model from GitHub and makes predictions.")
 
-# Load model
 try:
     model = load_model()
     st.success("Model loaded successfully from GitHub!")
@@ -37,24 +40,16 @@ except Exception as e:
     st.error(f"Error loading model: {e}")
     st.stop()
 
-# Sidebar input
 st.sidebar.header("Input Features")
 feature1 = st.sidebar.number_input("Feature 1", min_value=0.0, step=0.1)
 feature2 = st.sidebar.number_input("Feature 2", min_value=0.0, step=0.1)
 feature3 = st.sidebar.number_input("Feature 3", min_value=0.0, step=0.1)
 
-# Make prediction
 if st.sidebar.button("Predict"):
     input_data = np.array([[feature1, feature2, feature3]])
     prediction = model.predict(input_data)
     st.metric("Predicted Value", f"{prediction[0]:.2f}")
 
-    # Visualization
     fig, ax = plt.subplots()
     ax.bar(["Prediction"], [prediction[0]], color="skyblue")
     st.pyplot(fig)
-
-st.markdown("---")
-st.subheader("About")
-st.write("This Streamlit app loads the trained model from GitHub, "
-         "takes user input, and outputs regression predictions with visualization.")
